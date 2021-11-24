@@ -1,0 +1,250 @@
+body {
+    margin: 0;
+    background-color: rgb(68, 68, 68);
+    color: white;
+}
+.flex {
+    display: flex;
+}
+.flex-column {
+    flex-direction: column;
+}
+.flex-column-reverse {
+    flex-direction: column-reverse;
+}
+.content-start {
+    justify-content: flex-start;
+}
+.content-end {
+    justify-content: flex-end;
+}
+.content-center {
+    justify-content: center;
+}
+.content-between {
+    justify-content: space-between;
+}
+.content-around {
+    justify-content: space-around;
+}
+.content-evenly {
+    justify-content: space-evenly;
+}
+.items-stretch {
+    align-items: stretch;
+}
+.items-start {
+    align-items: flex-start;
+}
+.items-start-self {
+    align-self: flex-start;
+}
+.items-end {
+    align-items: flex-end;
+}
+.items-center {
+    align-items: center;
+}
+.flex-auto {
+    flex: 1 2 auto;
+}
+.h-60 {
+    height: 60px;
+}
+.h-85 {
+    height: 85px;
+}
+.h-100{
+    height: 100px;
+}
+.pbt10 {
+    padding-bottom: 12px;
+    padding-top: 12px;
+}
+.plr10 {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+.mr50 {
+    margin-right: 50px;
+}
+.mr80 {
+    margin-right: 80px;
+}
+.fs20 {
+    font-size: 20px;
+}
+.fs30 {
+    font-size: 30px;
+}
+.fs40 {
+    font-size: 40px;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.content-width {
+    width: 1200px;
+}
+
+.header {
+    background-image: url(/public/images/rectangle-header.png);
+    height: 110px;
+    margin-left: 150px;
+    margin-right: 150px;
+}
+.rectangle-progress {
+    background-image: url(/public/images/rectangle-progress.png);
+    flex: 3 3 auto;
+}
+.progress {
+    height: 40px;
+    width: 90%;
+}
+.menu {
+    background-image: url(/public/images/button-menu.png);
+}
+.menu:hover {
+    filter: drop-shadow(2px 3px 5px white);  
+}
+.container-pause {
+    height: 80px;
+    width: 80px;
+}
+.pause {
+    background-image: url(/public/images/pause.png);
+}
+.pause:hover {
+    filter: drop-shadow(2px 3px 5px white);  
+}
+
+.window-backpack__mask {
+    position: fixed;
+    height: 100%;
+        background-color: rgba(0, 0, 0, 0.0);
+    transition: opacity 0.3s ease;
+    z-index: 3;
+}
+.window-backpack__container {
+    width: 300px;
+    padding: 20px 30px;
+    background-image: url(/public/images/menu.png);
+    border-radius: 2px;
+    box-shadow: 0 10px 30px 2000px rgba(0, 0, 0, 0.33);
+    transition: all 0.3s ease;
+    z-index: 4;
+}
+
+.main {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.playing-field {
+    background-image: url(/public/images/field.png);
+    margin-right: 20px;
+}
+.cell {
+    width: 48px;
+    height: 48px;
+}
+.cell:hover {
+    filter: drop-shadow(4px 6px 8px white);
+}
+.cellHover {
+    filter: drop-shadow(4px 6px 8px white);
+}
+.cellActive {
+    filter: drop-shadow(3px 4px 6px rgb(9, 255, 9));
+}
+.celMistake{
+    filter: drop-shadow(3px 4px 5px rgb(255, 9, 9));
+    cursor: no-drop;
+}
+.win {
+    width: 500px;
+    height: 500px;
+}
+
+.size-rectangle {
+    background-size: 100% 100%;
+}
+.panel-score {
+    background-image: url(/public/images/rectangle-interface.png);
+    width: 280px;
+    height: 280px;
+    z-index: 2;
+}
+.rectangle-time {
+    position: relative;
+    background-image: url(/public/images/rectangle-time.png);
+    width: 160px;
+    height: 80px;
+    z-index: 1;
+    top: 40px;
+}
+.elipse-time {
+    position: relative;
+    background-image: url(/public/images/elipse-time.png);
+    width: 160px;
+    height: 160px;
+}
+.rectangle-score {
+    background-image: url(/public/images/rectangle-score.png);
+    width: 200px;
+    height: 80px;
+}
+.bonuse {
+    height: 60px;
+}
+.button-bonuse {
+    background-image: url(/public/images/bonus.png);
+    width: 120px;
+    height: 120px;
+}
+.button-bonuse:hover {
+    filter: drop-shadow(2px 3px 5px white);
+}
+.icon-bonuse {
+    width: 40px;
+    height: 40px;
+    filter: drop-shadow(2px 3px 5px rgb(206, 0, 0));
+}
+.price-bonus {
+    background-image: url(/public/images/price-bonuse.png);
+    width: 80px;
+    height: 30px;
+}
+
+.footer_container-cell {
+    width: 250px;
+}
+.button_update {
+    background-image: url(/public/images/button.png);
+    width: 160px;
+}
+.button_update:hover {
+    filter: drop-shadow(2px 3px 5px white);
+}
+.button_update-ellipse {
+    position: relative;
+    left: 10px;
+    background-color: rgb(70, 70, 70);
+    width: 30px;
+    height: 30px;
+    border: .5px solid rgb(59, 59, 59);
+    border-radius: 50%;
+}
+.button_new-game {
+    background-image: url(/public/images/button2.png);
+    width: 180px;
+}
+.button_new-game:hover {
+    filter: drop-shadow(2px 3px 5px white);
+}
+/* canvas {
+    border: 3px solid black;
+    border-radius: 6%;
+    background-size: 100% 100%;
+    background-image: url(/public/images/field.png);
+} */
