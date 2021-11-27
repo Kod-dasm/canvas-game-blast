@@ -3,10 +3,9 @@ import '@babel/polyfill'
 
 const game = {
   sizeStar: 48,
-  countStarX: 10,
-  countStarY: 10,
-  sizeFieldX: 500,
-  sizeFieldY: 500, 
+  countStarX: 6,
+  countStarY: 6,
+  speed: 192,
   field: [],
   canvas: null,
   ctx: null,
@@ -24,6 +23,7 @@ class Star {
     this.active = false
     this.x = columnNumber
     this.y = rowNumber
+    this.currentPlace = 10 // y
   }
   burnStar() {
     this.active = true
@@ -63,18 +63,36 @@ function addCell(columnNumber) {
   let cells = []
   for (let rowNumber = 0; rowNumber < game.countStarY; rowNumber++) {
     cells.push(new Star(10 + columnNumber * game.sizeStar, 10 + (game.countStarY - (rowNumber + 1)) * game.sizeStar))
-    // const color = colorStar(cells[rowNumber].color)
-    // color.addEventListener("load", function() {
-    //   game.ctx.drawImage(color, cells[rowNumber].x, cells[rowNumber].y, game.sizeStar, game.sizeStar);
-    // }, false);
   }
   return cells
 }
-function drawField() {
+function animationOfShootingStars() {
+  for (let rowNumber = 0; rowNumber < game.countStarY; rowNumber++) {
+  let step = 0;
+  (function animation(){
+      moveStars(rowNumber+1)
+      drawField(rowNumber, step + 1)
+      step++
+      if (step < game.speed) {
+        window.requestAnimationFrame(animation)
+      }
+  })(rowNumber)
+  }
+}
+function moveStars(currentRowNumber) {
+  for (let rowNumber = 0; rowNumber < currentRowNumber; rowNumber++) {
+    for (let columnNumber = 0; columnNumber < game.countStarX; columnNumber++) {
+      if (game.field[columnNumber][rowNumber].currentPlace < game.field[columnNumber][rowNumber].y) {
+        game.field[columnNumber][rowNumber].currentPlace += game.sizeStar / game.speed
+      }
+    }
+  }
+}
+function drawField(currentRowNumber, step) {
   drawBackground()
   for (let columnNumber = 0; columnNumber < game.countStarX; columnNumber++) {
-    for (let rowNumber = 0; rowNumber < game.countStarY; rowNumber++) {
-      drawStar(columnNumber, rowNumber)
+    for (let rowNumber = currentRowNumber; rowNumber >= 0; rowNumber--) {
+      drawStar(columnNumber, rowNumber, step)
     }
   }
 }
@@ -89,17 +107,20 @@ function drawBackground() {
     game.ctx.drawImage(game.background, 0, 0, game.sizeFieldX, game.sizeFieldY);
   }
 }
-function drawStar(columnNumber, rowNumber) {
+function drawStar(columnNumber, rowNumber, step) {
   const star = game.field[columnNumber][rowNumber]
   const color = colorStar(star.color)
+  // const stepAnimation = step * game.sizeStar / game.speed
   if (!color.loaded){
     color.addEventListener("load", function() {
       color.loaded = true
-      game.ctx.drawImage(color, star.x, star.y, game.sizeStar, game.sizeStar);
+        
+        // game.ctx.drawImage(color, star.x, star.currentPlace, game.sizeStar, stepAnimation)
+      game.ctx.drawImage(color, star.x, star.currentPlace, game.sizeStar, game.sizeStar)
     }, false);
   }
   else {
-    game.ctx.drawImage(color, star.x, star.y, game.sizeStar, game.sizeStar);
+    game.ctx.drawImage(color, star.x, star.currentPlace, game.sizeStar, game.sizeStar)
   }
 }
 
@@ -137,8 +158,8 @@ function draw() {
   game.canvas.setAttribute('width', game.sizeFieldX)
   game.canvas.setAttribute('height', game.sizeFieldY)
   createdField()
-  // drawBackground()
-  drawField()
+  animationOfShootingStars()
+  console.log('field = ', game.field)
   }
   draw()
   
@@ -151,21 +172,21 @@ function draw() {
   function clickOnStar(e) {
     const x = e.offsetX
     const y = e.offsetY
-    if (x > 10 && x < 490 && y > 10 && y < 490) {
+    if (x > 10 && x < game.sizeFieldX && y > 10 && y < game.sizeFieldY) {
       removeStarOnColumn(x, y)
     }
   }
   function removeStarOnColumn(x, y) {
     for (let columnNumber = 0; columnNumber < game.countStarX; columnNumber++) {
-      removeStarOnRown(x, y, columnNumber)
+      removeStarOnRow(x, y, columnNumber)
     }
   }
-  function removeStarOnRown(x, y, columnNumber) {
+  function removeStarOnRow(x, y, columnNumber) {
     for (let rowNumber = 0; rowNumber < game.countStarY; rowNumber++) {
       const star = game.field[columnNumber][rowNumber] 
       if(x > star.x && x < (star.x + game.sizeStar) && y > star.y && y < (star.y + game.sizeStar)) {
         star.burnStar()
-        drawField()
+        animationOfShootingStars()
       }
     }
   }
