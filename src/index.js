@@ -5,8 +5,10 @@ const game = {
   sizeStar: 48,
   countStarX: 10,
   countStarY: 10,
-  speed: 96,
+  speed: 192,
   radiusBomb: 3,
+  minCountStarsBurn: 2,
+  score: null,
   field: [],
   activeBomb: false,
   canvas: null,
@@ -31,8 +33,10 @@ class Star {
   }
   burnStar() {
     this.activateStars()
-    game.field = game.field.map(itemX => itemX.filter(itemY => !itemY.active ? true : false))
-    this.recoverField()
+    if(this.activeStars.length >= game.minCountStarsBurn) {
+      game.field = game.field.map(itemX => itemX.filter(itemY => !itemY.active ? true : false))
+      this.recoverField()
+    }
   }
   activateStars() {
     for (let i = 0; i < this.activeStars.length; i++) {
@@ -63,6 +67,8 @@ class Star {
 }
 
 function createdField() {
+  game.score = 0
+  updateScore()
   for (let columnNumber = 0; columnNumber < game.countStarX; columnNumber++) {
     game.field.push(addCell(columnNumber))
   }
@@ -170,144 +176,151 @@ function draw() {
   createdField()
   animationOfShootingStars()
   console.log('field = ', game.field)
-  }
-  draw()
-  
-  game.canvas.addEventListener("mousemove", moveOnStar, false)
-  game.canvas.addEventListener("click", clickOnStar, false)
+}
+draw()
 
-  function moveOnStar(e) {
-    const x = e.offsetX
-    const y = e.offsetY
-    drawField()
-    updateField(resetHover)
-    checkStar(x, y, hoverStars)
-  }
+game.canvas.addEventListener("mousemove", moveOnStar, false)
+game.canvas.addEventListener("click", clickOnStar, false)
 
-  function hoverStars(item, coordX, coordY) { 
-    // this.fieldDel = []
-    // !game.activeBomb ? searchInWidth(item.color, coordX, coordY) : searchDetonateZone(game.radiusBomb, coordX, coordY)
-    // searchInWidth(item.color, coordX, coordY)
-    if (item.activeStars.length == 0){
-      !game.activeBomb ? searchInWidth(item, coordX, coordY) : searchDetonateZone(item, coordX, coordY, game.radiusBomb)
-      animationHover(item)
-      return
-    }
-    // if (item.activeStars.length == 0){
-    //   searchInWidth(item, coordX, coordY)
-    //   animationHover(item)
-    //   return
-    // }
+function moveOnStar(e) {
+  const x = e.offsetX
+  const y = e.offsetY
+  drawField()
+  updateField(resetHover)
+  checkStar(x, y, hoverStars)
+}
+
+function hoverStars(item, coordX, coordY) { 
+  // this.fieldDel = []
+  // !game.activeBomb ? searchInWidth(item.color, coordX, coordY) : searchDetonateZone(game.radiusBomb, coordX, coordY)
+  // searchInWidth(item.color, coordX, coordY)
+  if (item.activeStars.length == 0){
+    !game.activeBomb ? searchInWidth(item, coordX, coordY) : searchDetonateZone(item, coordX, coordY, game.radiusBomb)
     animationHover(item)
+    return
   }
+  // if (item.activeStars.length == 0){
+  //   searchInWidth(item, coordX, coordY)
+  //   animationHover(item)
+  //   return
+  // }
+  animationHover(item)
+}
 
-  function animationHover(item) {
-    for (let i = 0; i < item.activeStars.length; i++) {
-      drawStar(item.activeStars[i].x, item.activeStars[i].y, game.sizeStar + 4)
+function animationHover(item) {
+  for (let i = 0; i < item.activeStars.length; i++) {
+    drawStar(item.activeStars[i].x, item.activeStars[i].y, game.sizeStar + 4)
+  }
+}
+
+function saveTheStarValue(item, coordX, coordY) {
+  game.field[coordX][coordY].hover = true
+  if (item.activeStars.length != 0 && (coordX == item.activeStars[0].x + 1 && coordY == item.activeStars[0].y)) {
+    item.activeStars.push({ x: coordX, y: coordY, mes: 'hello' })
+    return
+  }
+  item.activeStars.push({ x: coordX, y: coordY })
+}
+function isColor(color, coordX, coordY) {
+    if (typeof color == "string" && color == game.field[coordX][coordY].color) return true
+    else if (game.activeBomb) return true
+    return false
+}
+function checkUpCell(item, coordX, coordY, func, radius) {
+    // if (coordY < this.sizeFieldY && isColor(item.color, coordX, coordY) && !this.field[coordX][coordY].hover) {
+    if (coordY < game.countStarY && isColor(item.color, coordX, coordY) && !game.field[coordX][coordY].hover) {
+        if (game.activeBomb && coordY == item.activeStars[0].y) {
+            return
+        }
+        func(item, coordX, coordY, radius)
     }
-  }
-
-  function saveTheStarValue(item, coordX, coordY) {
-    game.field[coordX][coordY].hover = true
-    item.activeStars.push({ x: coordX, y: coordY })
-  }
-  function isColor(color, coordX, coordY) {
-      if (typeof color == "string" && color == game.field[coordX][coordY].color) return true
-      else if (game.activeBomb) return true
-      return false
-  }
-  function checkUpCell(item, coordX, coordY, func, radius) {
-      // if (coordY < this.sizeFieldY && isColor(item.color, coordX, coordY) && !this.field[coordX][coordY].hover) {
-      if (coordY < game.countStarY && isColor(item.color, coordX, coordY) && !game.field[coordX][coordY].hover) {
-          if (game.activeBomb && coordY == item.activeStars.y) {
-              return
-          }
-          func(item, coordX, coordY, radius)
-      }
-  }
-  function checkLeftCell(item, coordX, coordY, func, radius) {
-      if (coordX >= 0 && isColor(item.color, coordX, coordY) && !game.field[coordX][coordY].hover) {
-          if (game.activeBomb && coordX == item.activeStars[0].x) {
-              return
-          }
-          func(item, coordX, coordY, radius)
-      }
-  }
-  function checkDownCell(item, coordX, coordY, func, radius) {
-      if (coordY >= 0 && isColor(item.color, coordX, coordY) && !game.field[coordX][coordY].hover) {
-          if (game.activeBomb && coordY == item.activeStars[0].y) {
-              return
-          }
-          func(item, coordX, coordY, radius)
-      }
-  }
-  function checkRightCell(item, coordX, coordY, func, radius) {
-      if (coordX < game.countStarX && isColor(item.color, coordX, coordY) && !game.field[coordX][coordY].hover) {
-          if (game.activeBomb && coordX == item.activeStars[0].x) {
-              return
-          }
-          func(item, coordX, coordY, radius)
-      }
-  }
-  function searchProcess(item, coordX, coordY, func, radius) {
-      checkUpCell(item, coordX, coordY + 1, func, radius)
-      checkLeftCell(item, coordX - 1, coordY, func, radius)
-      checkDownCell(item, coordX, coordY - 1, func, radius)
-      checkRightCell(item, coordX + 1, coordY, func, radius)
-  }
-  function searchInWidth(item, coordX, coordY) {
+}
+function checkLeftCell(item, coordX, coordY, func, radius) {
+    if (coordX >= 0 && isColor(item.color, coordX, coordY) && !game.field[coordX][coordY].hover) {
+        if (game.activeBomb && coordX == item.activeStars[0].x) {
+            return
+        }
+        func(item, coordX, coordY, radius)
+    }
+}
+function checkDownCell(item, coordX, coordY, func, radius) {
+    if (coordY >= 0 && isColor(item.color, coordX, coordY) && !game.field[coordX][coordY].hover) {
+        if (game.activeBomb && coordY == item.activeStars[0].y) {
+            return
+        }
+        func(item, coordX, coordY, radius)
+    }
+}
+function checkRightCell(item, coordX, coordY, func, radius) {
+    if (coordX < game.countStarX && isColor(item.color, coordX, coordY) && !game.field[coordX][coordY].hover) {
+        if (game.activeBomb && coordX == item.activeStars[0].x) {
+            return
+        }
+        func(item, coordX, coordY, radius)
+    }
+}
+function searchProcess(item, coordX, coordY, func, radius) {
+    checkUpCell(item, coordX, coordY + 1, func, radius)
+    checkLeftCell(item, coordX - 1, coordY, func, radius)
+    checkDownCell(item, coordX, coordY - 1, func, radius)
+    checkRightCell(item, coordX + 1, coordY, func, radius)
+}
+function searchInWidth(item, coordX, coordY) {
+  saveTheStarValue(item, coordX, coordY)
+  searchProcess(item, coordX, coordY, searchInWidth)
+}
+function searchDetonateZone(item, coordX, coordY, radius) {
     saveTheStarValue(item, coordX, coordY)
-    searchProcess(item, coordX, coordY, searchInWidth)
-  }
-  function searchDetonateZone(item, coordX, coordY, radius) {
-      saveTheStarValue(item, coordX, coordY)
-      if (radius < 1) {
-          return
-      }
-      searchProcess(item, coordX, coordY, searchDetonateZone, radius - 1)
-  }
+    if (radius < 1) {
+        return
+    }
+    searchProcess(item, coordX, coordY, searchDetonateZone, radius - 1)
+}
 
-  function clickOnStar(e) {
-    const x = e.offsetX
-    const y = e.offsetY
-    checkStar(x, y, remove)
+function clickOnStar(e) {
+  const x = e.offsetX
+  const y = e.offsetY
+  checkStar(x, y, remove)
+}
+function checkStar(x, y, func) {
+  const coordX = Math.floor((x - 10) / game.sizeStar) 
+  const coordY = (game.countStarY - 1) -  Math.floor((y - 10) / game.sizeStar) 
+  if(!(coordX < 0 || coordX > game.countStarX - 1) && !(coordY < 0 || coordY > game.countStarY - 1)) {
+    const star = game.field[coordX][coordY] 
+    func(star, coordX, coordY)
   }
-  function checkStar(x, y, func) {
-    if (x > 10 && x < game.sizeFieldX && y > 10 && y < game.sizeFieldY) {
-      checkByColumn(x, y, func)
-    }
-  }
-  function checkByColumn(x, y, func) {
-    for (let columnNumber = 0; columnNumber < game.countStarX; columnNumber++) {
-      checkByRow(x, y, columnNumber, func)
-    }
-  }
-  function checkByRow(x, y, columnNumber, func) {
-    for (let rowNumber = 0; rowNumber < game.countStarY; rowNumber++) {
-      const star = game.field[columnNumber][rowNumber] 
-      if(x > star.x && x < (star.x + game.sizeStar) && y > star.y && y < (star.y + game.sizeStar)) {
-        func(star, columnNumber, rowNumber)
-      }
-    }
-  }
-  function remove(star, coordX, coordY) {
+}
+function remove(star, coordX, coordY) {
+  if (star.activeStars.length >= game.minCountStarsBurn) {
     star.burnStar()
-    updateField(resetActiveStars)
+    game.score += countingScore(star.activeStars.length)
+    updateScore()
     animationOfShootingStars()
     hoverStars(game.field[coordX][coordY], coordX, coordY)
-    console.log('game.field[coordX][coordY] = ', game.field[coordX][coordY])
   }
-  
-  function updateField(func) {
-    game.field = game.field.map(itemX => itemX.map(itemY => {
-      return func(itemY)
-    }))
+  updateField(resetActiveStars)
+}
+
+function updateField(func) {
+  game.field = game.field.map(itemX => itemX.map(itemY => {
+    return func(itemY)
+  }))
+}
+function resetActiveStars(itemY) {
+  itemY.activeStars = []
+  return itemY
+}
+function resetHover(itemY) {
+  itemY.hover = false
+  return itemY
+}
+function  updateScore() {
+  const score = document.querySelector('#score')
+  score.innerHTML = game.score
+}
+function countingScore(count) {
+  if (count >= game.minCountStarsBurn) {
+      return count + countingScore(count - 1)
   }
-  function resetActiveStars(itemY) {
-    itemY.activeStars = []
-    return itemY
-  }
-  function resetHover(itemY) {
-    itemY.hover = false
-    return itemY
-  }
+  return 0
+}
