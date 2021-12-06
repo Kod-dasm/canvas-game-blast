@@ -5,10 +5,11 @@ const game = {
   sizeStar: 48,
   countStarX: 10,
   countStarY: 10,
-  speed: 192,
+  speed: 96,
   radiusBomb: 3,
   minCountStarsBurn: 2,
-  score: null,
+  bonuse: 0,
+  moves: 100,
   field: [],
   activeBomb: false,
   canvas: null,
@@ -30,7 +31,7 @@ class Star {
     this.x = columnNumber
     this.y = rowNumber
     this.currentPlace = 10 // y
-  }
+  }  
   burnStar() {
     this.activateStars()
     if(this.activeStars.length >= game.minCountStarsBurn) {
@@ -65,10 +66,36 @@ class Star {
     game.field[columnNumber][rowNumber].y = 10 + (game.countStarY - (rowNumber + 1)) * game.sizeStar
   }
 }
+function Button(id, click) {
+  this.elem = document.getElementById(id)
+  this.click = click
+  return this
+}
+function Score() {
+  this.value = 0
+  this.max = 10
+  this.score = document.querySelector('#score')
+  this.progress = document.querySelector('#progress')
+  this.progress.max = this.max
+  this.updateScore = function() {
+    this.score.innerHTML = this.value
+    this.progress.value = this.value
+  }
+  this.countingScore = function(count) {
+    if (count >= game.minCountStarsBurn) {
+        return count + this.countingScore(count - 1)
+    }
+    return 0
+  }
+  return this
+}
+function computedData(id, count) {
+  const elem = document.getElementById(id)
+  elem.innerHTML = count
+}
 
 function createdField() {
-  game.score = 0
-  updateScore()
+  score.updateScore()
   for (let columnNumber = 0; columnNumber < game.countStarX; columnNumber++) {
     game.field.push(addCell(columnNumber))
   }
@@ -80,17 +107,19 @@ function addCell(columnNumber) {
   }
   return cells
 }
-function animationOfShootingStars() {
+function animationOfShootingStars(coordX, coordY) {
   for (let rowNumber = 0; rowNumber < game.countStarY; rowNumber++) {
   let step = 0;
-  (function animation(){
-      moveStars(rowNumber+1)
-      drawField(rowNumber, step + 1)
-      step++
-      if (step < game.speed) {
-        window.requestAnimationFrame(animation)
-      }
-  })(rowNumber)
+    (function animation(){
+        if (game.field.length != 0) {
+          moveStars(rowNumber+1)
+          drawField(rowNumber, step + 1)
+          step++
+          if (step < game.speed) {
+            window.requestAnimationFrame(animation)
+          }
+        }
+    })(rowNumber)
   }
 }
 function moveStars(currentRowNumber) {
@@ -174,13 +203,36 @@ function draw() {
   game.canvas.setAttribute('width', game.sizeFieldX)
   game.canvas.setAttribute('height', game.sizeFieldY)
   createdField()
+  computedData('moves', game.moves)
+  computedData('bonuse', game.bonuse)
   animationOfShootingStars()
   console.log('field = ', game.field)
 }
+const score = new Score()
 draw()
 
 game.canvas.addEventListener("mousemove", moveOnStar, false)
 game.canvas.addEventListener("click", clickOnStar, false)
+
+const bonuseBomb = new Button("bomb", function() {
+  if(game.bonuse >= 5) {
+    game.activeBomb = true
+    updateField(resetActiveStars)
+    game.bonuse -= 5
+    computedData('bonuse', game.bonuse)
+  }
+})
+const bonuseRepeat = new Button("repeat", function() {
+  if(game.bonuse >= 3) {
+    game.field = []
+    createdField()
+    animationOfShootingStars()
+    game.bonuse -= 3
+    computedData('bonuse', game.bonuse)
+  }
+})
+bonuseBomb.elem.addEventListener("click", bonuseBomb.click, false)
+bonuseRepeat.elem.addEventListener("click", bonuseRepeat.click, false)
 
 function moveOnStar(e) {
   const x = e.offsetX
@@ -191,19 +243,11 @@ function moveOnStar(e) {
 }
 
 function hoverStars(item, coordX, coordY) { 
-  // this.fieldDel = []
-  // !game.activeBomb ? searchInWidth(item.color, coordX, coordY) : searchDetonateZone(game.radiusBomb, coordX, coordY)
-  // searchInWidth(item.color, coordX, coordY)
   if (item.activeStars.length == 0){
     !game.activeBomb ? searchInWidth(item, coordX, coordY) : searchDetonateZone(item, coordX, coordY, game.radiusBomb)
     animationHover(item)
     return
   }
-  // if (item.activeStars.length == 0){
-  //   searchInWidth(item, coordX, coordY)
-  //   animationHover(item)
-  //   return
-  // }
   animationHover(item)
 }
 
@@ -222,8 +266,8 @@ function saveTheStarValue(item, coordX, coordY) {
   item.activeStars.push({ x: coordX, y: coordY })
 }
 function isColor(color, coordX, coordY) {
-    if (typeof color == "string" && color == game.field[coordX][coordY].color) return true
-    else if (game.activeBomb) return true
+    if (game.activeBomb) return true
+    else if (typeof color == "string" && color == game.field[coordX][coordY].color) return true
     return false
 }
 function checkUpCell(item, coordX, coordY, func, radius) {
@@ -293,14 +337,50 @@ function checkStar(x, y, func) {
 function remove(star, coordX, coordY) {
   if (star.activeStars.length >= game.minCountStarsBurn) {
     star.burnStar()
-    game.score += countingScore(star.activeStars.length)
-    updateScore()
-    animationOfShootingStars()
-    hoverStars(game.field[coordX][coordY], coordX, coordY)
+    score.value += score.countingScore(star.activeStars.length)
+    addBonuse(star.activeStars.length)
+    score.updateScore()
+    animationOfShootingStars(coordX, coordY)
   }
   updateField(resetActiveStars)
+  game.activeBomb = false
+  // game.moves--
+  computedData('moves', --game.moves)
+  statusGame()
 }
-
+function statusGame() {
+  let status = null
+  if(checkWin()) {
+    status = "Победа"
+  }
+  else if(checkLost()) {
+    status = "Поражение"
+  }
+  else return
+  console.log(status)
+  game.canvas.removeEventListener("mousemove", moveOnStar, false)
+  game.canvas.removeEventListener("click", clickOnStar, false)
+  game.field = []
+  drawBackground()
+  game.ctx.textAlign = "center"
+  game.ctx.fillStyle = "#fff";
+  game.ctx.font = 'bold 30px sans-serif';
+  game.ctx.fillText(status, game.sizeFieldX/2, game.sizeFieldY/2);
+}
+function checkWin() {
+  return score.value >= score.max ? true : false
+}
+function checkLost() {
+  return game.moves < 1 ? true : false
+}
+function addBonuse(count) {
+  count > 5 && !game.activeBomb ? game.bonuse++ : false
+  computedData('bonuse', game.bonuse)
+}
+// function updateBonuse() {
+//   const bonuse = document.getElementById('bonuse')
+//   bonuse.innerHTML = game.bonuse
+// }
 function updateField(func) {
   game.field = game.field.map(itemX => itemX.map(itemY => {
     return func(itemY)
@@ -313,14 +393,4 @@ function resetActiveStars(itemY) {
 function resetHover(itemY) {
   itemY.hover = false
   return itemY
-}
-function  updateScore() {
-  const score = document.querySelector('#score')
-  score.innerHTML = game.score
-}
-function countingScore(count) {
-  if (count >= game.minCountStarsBurn) {
-      return count + countingScore(count - 1)
-  }
-  return 0
 }

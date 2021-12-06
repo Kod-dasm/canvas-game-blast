@@ -10,12 +10,12 @@
       <div class="flex content-center items-center flex-auto h-85">
           <div class="button_update size-rectangle flex content-center items-center h-60">
               БОНУСЫ
-              <div class="button_update-ellipse size-rectangle flex content-center items-center"></div>
+              <div id="bonuse" class="button_update-ellipse size-rectangle flex content-center items-center"></div>
           </div>
       </div>
       <div class="rectangle-progress size-rectangle flex flex-column content-center items-center h-85">
           <div>Прогресс</div>
-          <progress class="progress" value="0" max="100"></progress>
+          <progress id="progress" class="progress" value="0" max="100"></progress>
       </div>
       <div class="flex content-center items-center flex-auto h-85">
           <div class="container-pause pause size-rectangle" :class="{ menu: !showGame, pause: showGame }" @click="putPause"></div>
@@ -42,7 +42,7 @@
         <div class="flex flex-column items-center">
             <div class="rectangle-time size-rectangle flex content-center"><p>ХОДЫ:</p></div>
             <div class="panel-score size-rectangle flex flex-column content-center items-center">
-                <div class="size-rectangle elipse-time flex content-center items-center fs40"></div>
+                <div id="moves" class="size-rectangle elipse-time flex content-center items-center fs40"></div>
                 <div class="size-rectangle rectangle-score flex flex-column content-center items-center">
                     <div class="fs20">ОЧКИ:</div>
                     <div id="score" class="fs30"></div>
@@ -50,11 +50,11 @@
             </div>
         </div>
         <div class="bonuse flex">
-            <div class="flex flex-column content-center items-center button-bonuse size-rectangle" @click="activateBonuseBomb">
+            <div id="bomb" class="flex flex-column content-center items-center button-bonuse size-rectangle" @click="activateBonuseBomb">
                 <img src="/images/bomb.png" alt="" class="icon-bonuse">
                 <div class="price-bonus size-rectangle flex content-center items-center">5</div>
             </div>
-            <div class="flex flex-column content-center items-center button-bonuse size-rectangle" @click="updateField">
+            <div id="repeat" class="flex flex-column content-center items-center button-bonuse size-rectangle" @click="updateField">
                 <img src="/images/repeat.png" alt="" class="icon-bonuse">
                 <div class="price-bonus size-rectangle flex content-center items-center">3</div>
             </div>
