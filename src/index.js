@@ -73,7 +73,7 @@ function Button(id, click) {
 }
 function Score() {
   this.value = 0
-  this.max = 10
+  this.max = 1000
   this.score = document.querySelector('#score')
   this.progress = document.querySelector('#progress')
   this.progress.max = this.max
