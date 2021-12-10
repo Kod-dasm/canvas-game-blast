@@ -1,66 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <link rel="icon" href="/favicon.ico">
-        <title><%= htmlWebpackPlugin.options.title %></title>
-    </head>
-    <body>
-        <header class="header size-rectangle flex content-around items-start fs20 plr100">
-            <div class="flex content-center items-center flex-auto h-85">
-                <div class="button_update size-rectangle flex content-center items-center h-60">
-                    БОНУСЫ
-                    <div id="bonuse" class="button_update-ellipse size-rectangle flex content-center items-center"></div>
-                </div>
+  <head>
+    <link rel="icon" href="/favicon.ico" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <header
+      class="header size-rectangle flex content-around items-start fs20 plr100"
+    >
+      <div class="flex content-center items-center flex-auto h-85">
+        <div
+          class="
+            button_update
+            size-rectangle
+            flex
+            content-center
+            items-center
+            h-60
+          "
+        >
+          БОНУСЫ
+          <div
+            id="bonuse"
+            class="
+              button_update-ellipse
+              size-rectangle
+              flex
+              content-center
+              items-center
+            "
+          ></div>
+        </div>
+      </div>
+      <div
+        class="
+          rectangle-progress
+          size-rectangle
+          flex flex-column
+          content-center
+          items-center
+          h-85
+        "
+      >
+        <div>Прогресс</div>
+        <progress id="progress" class="progress" value="0" max="100"></progress>
+      </div>
+      <div class="flex content-center items-center flex-auto h-85">
+        <div
+        id="newGame"
+          class="
+            button_update
+            size-rectangle
+            flex
+            content-center
+            items-center
+            h-60
+          "
+        >
+          НОВАЯ ИГРА
+        </div>
+      </div>
+    </header>
+    <main class="main flex content-around items-center">
+      <canvas id="gameField" width="500" height="500"> </canvas>
+      <div class="panel flex flex-column items-center items-start-self">
+        <div class="flex flex-column items-center">
+          <div class="rectangle-time size-rectangle flex content-center">
+            <p>ХОДЫ:</p>
+          </div>
+          <div
+            class="
+              panel-score
+              size-rectangle
+              flex flex-column
+              content-center
+              items-center
+            "
+          >
+            <div
+              id="moves"
+              class="
+                size-rectangle
+                elipse-time
+                flex
+                content-center
+                items-center
+                fs40
+              "
+            ></div>
+            <div
+              class="
+                size-rectangle
+                rectangle-score
+                flex flex-column
+                content-center
+                items-center
+              "
+            >
+              <div class="fs20">ОЧКИ:</div>
+              <div id="score" class="fs30"></div>
             </div>
-            <div class="rectangle-progress size-rectangle flex flex-column content-center items-center h-85">
-                <div>Прогресс</div>
-                <progress id="progress" class="progress" value="0" max="100"></progress>
+          </div>
+        </div>
+        <div class="bonuse flex">
+          <div
+            id="bomb"
+            class="
+              flex flex-column
+              content-center
+              items-center
+              button-bonuse
+              size-rectangle
+            "
+            @click="activateBonuseBomb"
+          >
+            <img src="/images/bomb.png" alt="" class="icon-bonuse" />
+            <div
+              class="
+                price-bonus
+                size-rectangle
+                flex
+                content-center
+                items-center
+              "
+            >
+              5
             </div>
-            <div class="flex content-center items-center flex-auto h-85">
-                <div class="container-pause pause size-rectangle"></div>
+          </div>
+          <div
+            id="repeat"
+            class="
+              flex flex-column
+              content-center
+              items-center
+              button-bonuse
+              size-rectangle
+            "
+            @click="updateField"
+          >
+            <img src="/images/repeat.png" alt="" class="icon-bonuse" />
+            <div
+              class="
+                price-bonus
+                size-rectangle
+                flex
+                content-center
+                items-center
+              "
+            >
+              3
             </div>
-        </header>
-        <main class="main flex content-around items-center">
-            <!-- <div class="playing-field plr10 size-rectangle cursor-pointer" :class="{ cursorBomb: showBomb }" @click="startGame">
-                <div v-if="showWin || showLost || showPause" class="win fs40 flex content-center items-center">
-                    <div v-if="showWin">Победа!!!</div>
-                    <div v-if="showLost">Поражение!!!</div>
-                    <div v-if="showPause && !showWin && !showLost">Пауза</div>
-                </div>
-                <div v-if="!showWin && !showLost && !showPause" class="flex content-center items-end">
-                    <div class="flex flex-column-reverse pbt10" v-for="(item, index) in showField">
-                        <template class="flex flex-column" v-for="(item, i) in item">
-                            <img  :src="require(`/public/images/${item.color}.png`)" alt="" class="cell" :class="{ cellHover: item.hover, cellActive: item.active, celMistake: item.mistake }" @mouseover="hoverStars(item, index, i)" @mouseleave="deactivateTheZone" @click="removeStars(item, index, i)">
-                        </template>
-                    </div>
-                </div>
-            </div> -->
-            <canvas id="gameField" width="500" height="500">
-            </canvas>
-            <div class="panel flex flex-column items-center items-start-self">
-                <div class="flex flex-column items-center">
-                    <div class="rectangle-time size-rectangle flex content-center"><p>ХОДЫ:</p></div>
-                    <div class="panel-score size-rectangle flex flex-column content-center items-center">
-                        <div id="moves" class="size-rectangle elipse-time flex content-center items-center fs40"></div>
-                        <div class="size-rectangle rectangle-score flex flex-column content-center items-center">
-                            <div class="fs20">ОЧКИ:</div>
-                            <div id="score" class="fs30"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bonuse flex">
-                    <div id="bomb" class="flex flex-column content-center items-center button-bonuse size-rectangle" @click="activateBonuseBomb">
-                        <img src="/images/bomb.png" alt="" class="icon-bonuse">
-                        <div class="price-bonus size-rectangle flex content-center items-center">5</div>
-                    </div>
-                    <div id="repeat" class="flex flex-column content-center items-center button-bonuse size-rectangle" @click="updateField">
-                        <img src="/images/repeat.png" alt="" class="icon-bonuse">
-                        <div class="price-bonus size-rectangle flex content-center items-center">3</div>
-                    </div>
-                    <div class="flex flex-column content-center items-center button-bonuse size-rectangle">
-                    </div>
-                </div>
-            </div>
-        </main>
-    </body>
+          </div>
+          <div
+            class="
+              flex flex-column
+              content-center
+              items-center
+              button-bonuse
+              size-rectangle
+            "
+          ></div>
+        </div>
+      </div>
+    </main>
+  </body>
 </html>
