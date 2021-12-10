@@ -4,7 +4,7 @@ import { Game, Button, Score } from "./classes";
 
 let game = new Game();
 
-const score = new Score(1000);
+let score = new Score(1000);
 
 const bonuseBomb = new Button("bomb", function () {
   if (game.bonuse >= 5) {
@@ -26,7 +26,7 @@ const bonuseRepeat = new Button("repeat", function () {
 const newGame = new Button("newGame", function () {
   console.log(game);
   removeEvent();
-  const score = new Score(1000);
+  score = new Score(1000);
   game = new Game();
   computedData("moves", game.moves);
   computedData("bonuse", game.bonuse);
