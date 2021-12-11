@@ -54,7 +54,6 @@ export default class Game {
     this.canvas.setAttribute("height", this.sizeFieldY);
     this.createdField(score);
     this.animationOfShootingStars();
-    console.log("field = ", this.field);
   }
   createdField(score) {
     score.updateScore();
@@ -79,7 +78,7 @@ export default class Game {
       this.stars[STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)]];
     return new Star(columnNumber, rowNumber, starTemplate);
   }
-  burnStar(star) {
+  burnTheStar(star) {
     this.activateStars(star);
     if (star.activeStars.length >= this.minCountStarsBurn) {
       this.field = this.field.map((itemX) =>
@@ -156,7 +155,7 @@ export default class Game {
     this.drawBackground();
     for (let columnNumber = 0; columnNumber < this.countStarX; columnNumber++) {
       for (let rowNumber = currentRowNumber; rowNumber >= 0; rowNumber--) {
-        this.drawStar(columnNumber, rowNumber);
+        this.drawStar(this.field[columnNumber][rowNumber]);
       }
     }
   }
@@ -188,8 +187,7 @@ export default class Game {
     item.loaded = true;
     this.ctx.drawImage(item.img, x, y, sizeX, sizeY);
   }
-  drawStar(columnNumber, rowNumber, sizeStar = this.sizeStar) {
-    const star = this.field[columnNumber][rowNumber];
+  drawStar(star, sizeStar = this.sizeStar) {
     if (!star.template.loaded) {
       star.template.img.addEventListener(
         "load",

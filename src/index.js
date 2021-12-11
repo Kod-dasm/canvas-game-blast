@@ -9,7 +9,7 @@ let score = new Score(1000);
 const bonuseBomb = new Button("bomb", function () {
   if (game.bonuse >= 5) {
     game.activeBomb = true;
-    updateField(resetActiveStars);
+    updateTheField(resetActiveStars);
     game.bonuse -= 5;
     computedData("bonuse", game.bonuse);
   }
@@ -24,7 +24,6 @@ const bonuseRepeat = new Button("repeat", function () {
   }
 });
 const newGame = new Button("newGame", function () {
-  console.log(game);
   removeEvent();
   score = new Score(1000);
   game = new Game();
@@ -59,7 +58,7 @@ function moveOnStar(e) {
   const x = e.offsetX;
   const y = e.offsetY;
   game.drawField();
-  updateField(resetHover);
+  updateTheField(resetHover);
   checkStar(x, y, hoverStars);
 }
 function hoverStars(item, coordX, coordY) {
@@ -72,13 +71,24 @@ function hoverStars(item, coordX, coordY) {
   }
   animationHover(item);
 }
+function backgroundOfStarHover(star, size, color) {
+  game.ctx.fillStyle = color;
+  game.ctx.fillRect(star.x - 1, star.y - 1, size, size);
+}
 function animationHover(item) {
+  let color = null;
+  if (
+    game.field[item.activeStars[0].x][item.activeStars[0].y].activeStars
+      .length >= game.minCountStarsBurn
+  ) {
+    color = "#FFF";
+  } else {
+    color = "#F00";
+  }
   for (let i = 0; i < item.activeStars.length; i++) {
-    game.drawStar(
-      item.activeStars[i].x,
-      item.activeStars[i].y,
-      game.sizeStar + 4
-    );
+    const star = game.field[item.activeStars[i].x][item.activeStars[i].y];
+    backgroundOfStarHover(star, game.sizeStar + 2, color);
+    game.drawStar(star);
   }
 }
 function saveTheStarValue(item, coordX, coordY) {
@@ -185,7 +195,7 @@ function checkStar(x, y, func) {
 }
 function remove(star, coordX, coordY) {
   if (star.activeStars.length >= game.minCountStarsBurn) {
-    game.burnStar(star);
+    game.burnTheStar(star);
     score.value += score.countingScore(
       star.activeStars.length,
       game.minCountStarsBurn
@@ -194,7 +204,7 @@ function remove(star, coordX, coordY) {
     game.animationOfShootingStars(coordX, coordY);
     computedData("moves", --game.moves);
   }
-  updateField(resetActiveStars);
+  updateTheField(resetActiveStars);
   game.activeBomb = false;
   score.updateScore();
   statusGame();
@@ -224,7 +234,7 @@ function addBonuse(count) {
   count > 5 && !game.activeBomb ? game.bonuse++ : false;
   computedData("bonuse", game.bonuse);
 }
-function updateField(func) {
+function updateTheField(func) {
   game.field = game.field.map((itemX) =>
     itemX.map((itemY) => {
       return func(itemY);
