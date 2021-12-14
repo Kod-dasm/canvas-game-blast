@@ -6,7 +6,7 @@ export default class Game {
     _sizeStar = 48,
     _countStarX = 10,
     _countStarY = 10,
-    _speed = 96,
+    _speed = 192,
     _radiusBomb = 3,
     _minCountStarsBurn = 2,
     _moves = 100,

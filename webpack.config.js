@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const webpack = require("webpack");
 
@@ -13,7 +14,7 @@ module.exports = {
     open: true,
     compress: true,
     hot: true,
-    port: 8081,
+    port: 8080,
   },
   output: {
     path: path.resolve(__dirname, "./dist"),
@@ -24,6 +25,14 @@ module.exports = {
       title: "Blast game",
       template: path.resolve(__dirname, "./src/template.html"), // шаблон
       filename: "index.html", // название выходного файла
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, './public/images'),
+          to: path.resolve(__dirname, "./dist/images")
+        }
+      ]
     }),
     new CleanWebpackPlugin(),
     new webpack.HotModuleReplacementPlugin(),
